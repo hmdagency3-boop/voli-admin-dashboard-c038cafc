@@ -15,3 +15,8 @@
 - [x] Panel: add gift with video, add/change/link/remove video, preview, filter, log labels, tests.
 - [ ] Activate on Voli database: requires owner to run sql/019_gift_videos.sql.
 - [ ] Play the video after sending a gift: requires the separate Voli app to read video_url.
+# Store and backpack
+- [x] SQL 023: items (frames, rides, styles, price, days, picture, video), backpack with day top-ups, buy and wear one per kind, admin grant/remove; 14 isolated database tests passed.
+- [x] Panel: Store page (add, edit, hide, picture, video, sales) and member backpack with grant/remove; 6 rule tests; page checked with sample data.
+- [ ] Activate on Voli database: requires owner to run sql/023_store.sql.
+- [ ] Store and Backpack screens in the Voli app: separate project; request ready in sql/023_README.md.
