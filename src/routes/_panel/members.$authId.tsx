@@ -3,6 +3,7 @@ import { ModalForm, PageContainer, ProFormDependency, ProFormDigit, ProFormSelec
 import { NoticePreview, SendNoticeForm, VipNoticePreview } from "@/components/notices";
 import { Alert, Button, Card, Col, Descriptions, Popconfirm, Row, Space, Table, Tag } from "antd";
 import { pageHead } from "@/components/meta";
+import { Backpack } from "@/components/Backpack";
 import { useAction, useLoad } from "@/components/hooks";
 import {
   ACTION_LABELS, changeCoins, coinsNotice, describeAction, editProfile, fmt, fmtDate, getMember, grantVip, revokeVip,
@@ -101,6 +102,7 @@ function Member() {
             </Space>
           </Card>
         </Col>
+        <Col span={24}><Backpack authId={authId} /></Col>
         <Col span={24}>
           <Card title="سجل VIP">
             <Table rowKey="id" size="small" pagination={false} dataSource={m.vip_grants} columns={[

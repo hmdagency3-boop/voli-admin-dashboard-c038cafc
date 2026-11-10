@@ -233,11 +233,11 @@ export function uploadStatusText(s: UploadStatus): string {
 }
 
 /** Unsigned upload to Cloudinary with progress; returns the https link. */
-function cloudinaryUpload(file: File, kind: 'image' | 'video', folder: string, onProgress?: UploadProgress): Promise<string> {
+export function cloudinaryUpload(file: File, kind: 'image' | 'video', folder: string, onProgress?: UploadProgress, prefix?: string): Promise<string> {
   const what = kind === 'video' ? 'الفيديو' : 'الصورة';
   return new Promise((resolve, reject) => {
     const form = new FormData();
-    form.append('file', file, cloudFileName(file.name, kind === 'video' ? 'gift-video' : 'gift'));
+    form.append('file', file, cloudFileName(file.name, prefix ?? (kind === 'video' ? 'gift-video' : 'gift')));
     form.append('upload_preset', CLOUDINARY_PRESET);
     form.append('folder', folder);
     const xhr = new XMLHttpRequest();
@@ -488,6 +488,8 @@ export const ACTION_LABELS: Record<string, string> = {
   agency_approve: 'قبول وكالة', agency_reject: 'رفض وكالة', notice: 'إشعار رسمي',
   profile_violation: 'إزالة مخالفة', profile_lock: 'منع تغيير الاسم/الصورة',
   device_ban: 'حظر جهاز/شبكة', device_unban: 'فك حظر جهاز/شبكة',
+  store_create: 'إضافة للمتجر', store_update: 'تعديل منتج', store_art: 'صورة منتج', store_video: 'فيديو منتج',
+  store_grant: 'منح من المتجر', store_revoke: 'سحب من الحقيبة',
 };
 
 /** One-line Arabic summary of what an action changed. */
@@ -510,6 +512,11 @@ export function describeAction(action: string, d: Record<string, unknown>): stri
     case 'agency_reject': return d['reason'] ? String(d['reason']) : '';
     case 'profile_violation': case 'profile_lock': return `${d['field'] === 'name' ? 'الاسم' : 'الصورة'}${d['forever'] ? ' — منع نهائي' : d['days'] ? ` — منع ${d['days']} يوم` : action === 'profile_lock' ? ' — رفع المنع' : ''}`;
     case 'notice': return String(d['body'] ?? '');
+    case 'store_create': case 'store_update': return `${d['kind'] === 'ride' ? 'دخولية' : 'إطار'} ${d['name'] ?? ''}: ${n('price')} / ${d['days']} يوم${d['active'] === false ? ' (مخفي)' : ''}`;
+    case 'store_art': return String(d['name'] ?? '');
+    case 'store_video': return `${d['name'] ?? ''}${d['removed'] ? ' — حُذف الفيديو' : ''}`;
+    case 'store_grant': return `${d['kind'] === 'ride' ? 'دخولية' : 'إطار'} ${d['name'] ?? ''} — ${d['days']} يوم`;
+    case 'store_revoke': return `${d['kind'] === 'ride' ? 'دخولية' : 'إطار'} ${d['name'] ?? ''}`;
     case 'device_ban': case 'device_unban': return `${BAN_KIND_LABELS[String(d['kind']) as BanKind] ?? ''}: ${d['value'] ?? ''}`;
     default: return '';
   }
@@ -520,6 +527,7 @@ export const adminErrorMessage = (e: unknown) => {
   if (err?.hint === 'bans_missing') return 'يجب تشغيل تحديث الحظر الموحد 016 في قاعدة بيانات فولي أولاً';
   if (err?.hint === 'devices_missing') return 'يجب تشغيل ملف الأجهزة 015 في قاعدة البيانات أولاً';
   if (err?.hint === 'moderation_missing') return 'يجب تشغيل ملف المخالفات 017 في قاعدة بيانات فولي أولاً';
+  if (err?.hint === 'store_missing') return 'يجب تشغيل ملف المتجر 023 في قاعدة بيانات فولي أولاً';
   if (err?.hint === 'notice_missing') return 'يجب تشغيل ملف الإشعارات 014 في قاعدة البيانات أولاً';
   if (err?.hint === 'video_missing') return 'دوال هدايا الفيديو غير ظاهرة في قاعدة بيانات فولي: شغّل ملف 019 (المحدّث) مرة أخرى في محرر SQL، فهو يحدّث كاش الدوال فوراً';
   if (err?.hint === 'video_link_failed') return `أُضيفت الهدية والفيديو اترفع على Cloudinary، لكن تعذّر ربطه بالهدية (${(err as { reason?: string }).reason ?? 'خطأ غير معروف'}). استخدم «ربط فيديو موجود برابط» في سطر الهدية`;
@@ -551,6 +559,12 @@ export const adminErrorMessage = (e: unknown) => {
     bad_price: 'السعر غير صحيح',
     bad_art: 'صورة الهدية غير صحيحة، ارفع الصورة من اللوحة',
     bad_video: 'رابط الفيديو غير مقبول — لازم يكون فيديو مرفوع على Cloudinary الخاص بفولي',
+    bad_item_kind: 'نوع المنتج غير صحيح (إطار أو دخولية)',
+    bad_style: 'تصنيف المنتج غير صحيح',
+    bad_item_art: 'صورة المنتج غير صحيحة، ارفع الصورة من اللوحة',
+    not_for_sale: 'هذا المنتج غير معروض للبيع',
+    not_owned: 'المنتج غير موجود في حقيبة العضو أو انتهت مدته',
+    not_enough_coins: 'الرصيد غير كافٍ',
     bad_percent: 'يجب أن تكون النسبة بين 0 و100',
     is_agent: 'لا يمكن إزالة الوكيل من وكالته',
     not_pending: 'تمت معالجة هذا الطلب مسبقاً',
