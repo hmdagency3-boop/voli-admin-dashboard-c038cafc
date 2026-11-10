@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { ProLayout } from "@ant-design/pro-components";
-import { AppstoreOutlined, BankOutlined, CrownOutlined, DashboardOutlined, GiftOutlined, HistoryOutlined, LaptopOutlined, LogoutOutlined, SoundOutlined, StopOutlined, TeamOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, BankOutlined, CrownOutlined, DashboardOutlined, GiftOutlined, HistoryOutlined, LaptopOutlined, LogoutOutlined, ShopOutlined, SoundOutlined, StopOutlined, TeamOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Result, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { adminSignOut, getAdminAccess, getAdminName, useAdminSession, type AdminAccess } from "@/lib/admin";
@@ -13,6 +13,7 @@ const menu = [
   { path: "/vip", name: "إدارة VIP", icon: <CrownOutlined /> },
   { path: "/rooms", name: "الغرف الصوتية", icon: <SoundOutlined /> },
   { path: "/gifts", name: "الهدايا والأسعار", icon: <GiftOutlined /> },
+  { path: "/store", name: "المتجر", icon: <ShopOutlined /> },
   { path: "/agencies", name: "الوكالات", icon: <BankOutlined /> },
   { path: "/devices", name: "الأجهزة والحسابات المرتبطة", icon: <LaptopOutlined /> },
   { path: "/bans", name: "إدارة الحظر", icon: <StopOutlined /> },
