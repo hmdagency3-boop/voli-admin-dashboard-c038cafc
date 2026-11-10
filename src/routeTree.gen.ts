@@ -9,50 +9,288 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as PanelRouteImport } from './routes/_panel'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PanelIndexRouteImport } from './routes/_panel/index'
+import { Route as PanelAgenciesRouteImport } from './routes/_panel/agencies'
+import { Route as PanelBansRouteImport } from './routes/_panel/bans'
+import { Route as PanelDevicesRouteImport } from './routes/_panel/devices'
+import { Route as PanelGiftsRouteImport } from './routes/_panel/gifts'
+import { Route as PanelLogRouteImport } from './routes/_panel/log'
+import { Route as PanelRoomsRouteImport } from './routes/_panel/rooms'
+import { Route as PanelVipRouteImport } from './routes/_panel/vip'
+import { Route as PanelMembersIndexRouteImport } from './routes/_panel/members.index'
+import { Route as PanelMembersAuthIdRouteImport } from './routes/_panel/members.$authId'
 
-const IndexRoute = IndexRouteImport.update({
+const PanelRoute = PanelRouteImport.update({
+  id: '/_panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanelIndexRoute = PanelIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelAgenciesRoute = PanelAgenciesRouteImport.update({
+  id: '/agencies',
+  path: '/agencies',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelBansRoute = PanelBansRouteImport.update({
+  id: '/bans',
+  path: '/bans',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelDevicesRoute = PanelDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelGiftsRoute = PanelGiftsRouteImport.update({
+  id: '/gifts',
+  path: '/gifts',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelLogRoute = PanelLogRouteImport.update({
+  id: '/log',
+  path: '/log',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelRoomsRoute = PanelRoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelVipRoute = PanelVipRouteImport.update({
+  id: '/vip',
+  path: '/vip',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelMembersIndexRoute = PanelMembersIndexRouteImport.update({
+  id: '/members/',
+  path: '/members/',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelMembersAuthIdRoute = PanelMembersAuthIdRouteImport.update({
+  id: '/members/$authId',
+  path: '/members/$authId',
+  getParentRoute: () => PanelRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof PanelIndexRoute
+  '/login': typeof LoginRoute
+  '/agencies': typeof PanelAgenciesRoute
+  '/bans': typeof PanelBansRoute
+  '/devices': typeof PanelDevicesRoute
+  '/gifts': typeof PanelGiftsRoute
+  '/log': typeof PanelLogRoute
+  '/rooms': typeof PanelRoomsRoute
+  '/vip': typeof PanelVipRoute
+  '/members/$authId': typeof PanelMembersAuthIdRoute
+  '/members/': typeof PanelMembersIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/agencies': typeof PanelAgenciesRoute
+  '/bans': typeof PanelBansRoute
+  '/devices': typeof PanelDevicesRoute
+  '/gifts': typeof PanelGiftsRoute
+  '/log': typeof PanelLogRoute
+  '/rooms': typeof PanelRoomsRoute
+  '/vip': typeof PanelVipRoute
+  '/': typeof PanelIndexRoute
+  '/members/$authId': typeof PanelMembersAuthIdRoute
+  '/members': typeof PanelMembersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_panel': typeof PanelRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_panel/agencies': typeof PanelAgenciesRoute
+  '/_panel/bans': typeof PanelBansRoute
+  '/_panel/devices': typeof PanelDevicesRoute
+  '/_panel/gifts': typeof PanelGiftsRoute
+  '/_panel/log': typeof PanelLogRoute
+  '/_panel/rooms': typeof PanelRoomsRoute
+  '/_panel/vip': typeof PanelVipRoute
+  '/_panel/': typeof PanelIndexRoute
+  '/_panel/members/$authId': typeof PanelMembersAuthIdRoute
+  '/_panel/members/': typeof PanelMembersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/agencies'
+    | '/bans'
+    | '/devices'
+    | '/gifts'
+    | '/log'
+    | '/rooms'
+    | '/vip'
+    | '/members/$authId'
+    | '/members/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/login'
+    | '/agencies'
+    | '/bans'
+    | '/devices'
+    | '/gifts'
+    | '/log'
+    | '/rooms'
+    | '/vip'
+    | '/'
+    | '/members/$authId'
+    | '/members'
+  id:
+    | '__root__'
+    | '/_panel'
+    | '/login'
+    | '/_panel/agencies'
+    | '/_panel/bans'
+    | '/_panel/devices'
+    | '/_panel/gifts'
+    | '/_panel/log'
+    | '/_panel/rooms'
+    | '/_panel/vip'
+    | '/_panel/'
+    | '/_panel/members/$authId'
+    | '/_panel/members/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  PanelRoute: typeof PanelRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_panel': {
+      id: '/_panel'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PanelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_panel/': {
+      id: '/_panel/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PanelIndexRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/agencies': {
+      id: '/_panel/agencies'
+      path: '/agencies'
+      fullPath: '/agencies'
+      preLoaderRoute: typeof PanelAgenciesRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/bans': {
+      id: '/_panel/bans'
+      path: '/bans'
+      fullPath: '/bans'
+      preLoaderRoute: typeof PanelBansRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/devices': {
+      id: '/_panel/devices'
+      path: '/devices'
+      fullPath: '/devices'
+      preLoaderRoute: typeof PanelDevicesRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/gifts': {
+      id: '/_panel/gifts'
+      path: '/gifts'
+      fullPath: '/gifts'
+      preLoaderRoute: typeof PanelGiftsRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/log': {
+      id: '/_panel/log'
+      path: '/log'
+      fullPath: '/log'
+      preLoaderRoute: typeof PanelLogRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/rooms': {
+      id: '/_panel/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof PanelRoomsRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/vip': {
+      id: '/_panel/vip'
+      path: '/vip'
+      fullPath: '/vip'
+      preLoaderRoute: typeof PanelVipRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/members/': {
+      id: '/_panel/members/'
+      path: '/members'
+      fullPath: '/members/'
+      preLoaderRoute: typeof PanelMembersIndexRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/_panel/members/$authId': {
+      id: '/_panel/members/$authId'
+      path: '/members/$authId'
+      fullPath: '/members/$authId'
+      preLoaderRoute: typeof PanelMembersAuthIdRouteImport
+      parentRoute: typeof PanelRoute
     }
   }
 }
 
+interface PanelRouteChildren {
+  PanelAgenciesRoute: typeof PanelAgenciesRoute
+  PanelBansRoute: typeof PanelBansRoute
+  PanelDevicesRoute: typeof PanelDevicesRoute
+  PanelGiftsRoute: typeof PanelGiftsRoute
+  PanelLogRoute: typeof PanelLogRoute
+  PanelRoomsRoute: typeof PanelRoomsRoute
+  PanelVipRoute: typeof PanelVipRoute
+  PanelIndexRoute: typeof PanelIndexRoute
+  PanelMembersAuthIdRoute: typeof PanelMembersAuthIdRoute
+  PanelMembersIndexRoute: typeof PanelMembersIndexRoute
+}
+
+const PanelRouteChildren: PanelRouteChildren = {
+  PanelAgenciesRoute: PanelAgenciesRoute,
+  PanelBansRoute: PanelBansRoute,
+  PanelDevicesRoute: PanelDevicesRoute,
+  PanelGiftsRoute: PanelGiftsRoute,
+  PanelLogRoute: PanelLogRoute,
+  PanelRoomsRoute: PanelRoomsRoute,
+  PanelVipRoute: PanelVipRoute,
+  PanelIndexRoute: PanelIndexRoute,
+  PanelMembersAuthIdRoute: PanelMembersAuthIdRoute,
+  PanelMembersIndexRoute: PanelMembersIndexRoute,
+}
+
+const PanelRouteWithChildren = PanelRoute._addFileChildren(PanelRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  PanelRoute: PanelRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
