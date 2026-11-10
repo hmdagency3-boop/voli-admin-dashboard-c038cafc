@@ -39,7 +39,7 @@ describe.skipIf(!enabled)('store and backpack (sql/023) in isolated PostgreSQL',
 
   it('buying takes exactly the price from the coins and adds the item for its days', () => {
     expect(tryAs(a, `select public.store_buy('${ghost}')`)).toBe('ok');
-    expect(coins(a)).toBe(100000 - 15999);
+    expect(coins(a)).toBe(500000 - 15999);
     expect(daysLeft(a, ghost)).toBe(30);
   });
   it('buying the same item again adds its days on top of what is left', () => {

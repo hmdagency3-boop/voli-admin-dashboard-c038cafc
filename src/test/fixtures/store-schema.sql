@@ -29,6 +29,6 @@ exception when others then get stacked diagnostics h = pg_exception_hint; return
 grant execute on function public.t_try(text) to authenticated;
 insert into public.profiles values
   ('00000000-0000-0000-0000-000000000001', 100, 'Admin', 0),
-  ('00000000-0000-0000-0000-000000000002', 1000002, 'Member A', 100000),
+  ('00000000-0000-0000-0000-000000000002', 1000002, 'Member A', 500000),
   ('00000000-0000-0000-0000-000000000003', 1000003, 'Member B', 10);
 insert into public.test_roles values ('00000000-0000-0000-0000-000000000001', 'admin');
