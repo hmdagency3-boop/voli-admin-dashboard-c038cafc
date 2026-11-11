@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { EditableProTable, ModalForm, PageContainer, ProForm, ProFormDigit, ProFormSelect, ProFormText, StatisticCard } from "@ant-design/pro-components";
-import { DeleteOutlined, LinkOutlined, PlayCircleOutlined, PlusOutlined, UploadOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import { DeleteOutlined, LinkOutlined, PictureOutlined, PlayCircleOutlined, PlusOutlined, UploadOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { Alert, App, Button, Card, Col, Dropdown, Image, Modal, Row, Segmented, Space, Tabs, Tag, Upload, type UploadFile } from "antd";
 import { useMemo, useState } from "react";
 import { pageHead } from "@/components/meta";
+import { VideoEdgeEditor } from "@/components/VideoEdgeEditor";
+import { ImageEdgeEditor } from "@/components/ImageEdgeEditor";
+import { ArtField } from "@/components/ArtField";
+import { FrameToArt } from "@/components/VideoFramePicker";
 import { useAction, useLoad } from "@/components/hooks";
 import { fmt, GIFT_ART_TYPES, GIFT_VIDEO_TYPES, giftArtProblem, giftVideoProblem, giftVideoUrlOk, normalizeGiftVideoUrl, type UploadStatus } from "@/lib/admin";
 import {
@@ -20,7 +24,7 @@ const ACCEPT = GIFT_ART_TYPES.join(",");
 const VIDEO_ACCEPT = GIFT_VIDEO_TYPES.join(",");
 const ART_HELP: Record<StoreKind, string> = {
   frame: "PNG أو WebP أو GIF متحرك بخلفية شفافة، مربع، والوسط فاضي لصورة العضو. حتى 5 ميجا.",
-  ride: "صورة مصغّرة للدخولية تظهر في المتجر والحقيبة. PNG أو WebP أو GIF، حتى 5 ميجا.",
+  ride: "صورة مصغّرة للدخولية تظهر في المتجر والحقيبة: تتحوّل مربعة بأطراف ناعمة قبل الرفع. PNG أو WebP أو JPG، حتى 5 ميجا.",
 };
 const VIDEO_HELP = "MP4 أو WebM أو MOV حتى 50 ميجا. للدخوليات: يشتغل عند دخول الغرفة وعند الضغط ▶ في المتجر.";
 const styleLabel = (s: StoreStyle) => STORE_STYLES.find((x) => x.value === s)?.label ?? s;
@@ -33,6 +37,23 @@ const fileRule = (check: (f: File) => string | null) => ({
   },
 });
 const lastFile = (e: { fileList: UploadFile[] }) => e.fileList.slice(-1);
+
+/** Video picker for the add form: every chosen video goes through the soft-edge editor first. */
+function EdgeVideoField({ value, onChange }: { value?: UploadFile[]; onChange?: (v: UploadFile[]) => void }) {
+  const [pending, setPending] = useState<File | null>(null);
+  return (
+    <>
+      <Upload accept={VIDEO_ACCEPT} maxCount={1} fileList={value ?? []} beforeUpload={(f) => { setPending(f); return Upload.LIST_IGNORE; }}
+        onRemove={() => onChange?.([])}>
+        <Button icon={<VideoCameraOutlined />}>{value?.length ? "تغيير الفيديو" : "اختر فيديو"}</Button>
+      </Upload>
+      <VideoEdgeEditor file={pending} onCancel={() => setPending(null)} onDone={(f) => {
+        setPending(null);
+        onChange?.([{ uid: `${Date.now()}`, name: f.name, size: f.size, type: f.type, status: "done", originFileObj: f as NonNullable<UploadFile["originFileObj"]> }]);
+      }} />
+    </>
+  );
+}
 
 function useProgress() {
   const { message } = App.useApp();
@@ -66,17 +87,21 @@ function AddItem({ kind, onDone }: { kind: StoreKind; onDone: () => void }) {
       <ProFormDigit name="days" label="المدة (يوم)" min={1} max={STORE_DAYS_MAX} fieldProps={{ precision: 0 }} rules={[{ required: true, message: "اكتب المدة" }]}
         extra="الشراء مرة ثانية يضيف نفس المدة على الأيام المتبقية." />
       <ProFormDigit name="sort" label="الترتيب (فارغ = في الآخر)" min={0} fieldProps={{ precision: 0 }} />
-      <ProForm.Item name="art" label="الصورة" valuePropName="fileList" getValueFromEvent={lastFile} extra={ART_HELP[kind]}
-        rules={[{ required: true, message: "اختر صورة" }, fileRule(giftArtProblem)]}>
-        <Upload accept={ACCEPT} listType="picture-card" maxCount={1} beforeUpload={() => false}>
-          <div><PlusOutlined /><div style={{ marginTop: 6 }}>اختر صورة</div></div>
-        </Upload>
-      </ProForm.Item>
-      <ProForm.Item name="video" label={kind === "ride" ? "فيديو الدخولية (يفضّل)" : "فيديو (اختياري)"} valuePropName="fileList"
-        getValueFromEvent={lastFile} extra={VIDEO_HELP} rules={[fileRule(giftVideoProblem)]}>
-        <Upload accept={VIDEO_ACCEPT} maxCount={1} beforeUpload={() => false}>
-          <Button icon={<VideoCameraOutlined />}>اختر فيديو</Button>
-        </Upload>
+      {kind === "ride" ? (
+        <ProForm.Item name="art" label="الصورة" extra={ART_HELP[kind]} rules={[{ required: true, message: "اختر صورة" }, fileRule(giftArtProblem)]}>
+          <ArtField alwaysEdit editorTitle="صورة الدخولية: مربعة بأطراف ناعمة" />
+        </ProForm.Item>
+      ) : (
+        <ProForm.Item name="art" label="الصورة" valuePropName="fileList" getValueFromEvent={lastFile} extra={ART_HELP[kind]}
+          rules={[{ required: true, message: "اختر صورة" }, fileRule(giftArtProblem)]}>
+          <Upload accept={ACCEPT} listType="picture-card" maxCount={1} beforeUpload={() => false}>
+            <div><PlusOutlined /><div style={{ marginTop: 6 }}>اختر صورة</div></div>
+          </Upload>
+        </ProForm.Item>
+      )}
+      <ProForm.Item name="video" label={kind === "ride" ? "فيديو الدخولية (يفضّل)" : "فيديو (اختياري)"}
+        extra={`${VIDEO_HELP} بعد اختيار الفيديو تقدر تنعّم أطرافه قبل الرفع.`} rules={[fileRule(giftVideoProblem)]}>
+        <EdgeVideoField />
       </ProForm.Item>
     </ModalForm>
   );
@@ -84,11 +109,20 @@ function AddItem({ kind, onDone }: { kind: StoreKind; onDone: () => void }) {
 
 function ChangeArt({ item, onDone }: { item: StoreItem; onDone: () => void }) {
   const act = useAction();
+  const [pending, setPending] = useState<File | null>(null);
+  const [frameFrom, setFrameFrom] = useState<string | null>(null);
+  const save = (file: File) => act(() => changeStoreArt(item.id, file), "تغيّرت الصورة", onDone);
   return (
-    <Upload accept={ACCEPT} showUploadList={false} customRequest={() => {}}
-      beforeUpload={(file) => { act(() => changeStoreArt(item.id, file), "تغيّرت الصورة", onDone); return false; }}>
-      <a><UploadOutlined /> الصورة</a>
-    </Upload>
+    <>
+      <Upload accept={ACCEPT} showUploadList={false} customRequest={() => {}}
+        beforeUpload={(file) => { if (item.kind === "ride") setPending(file); else save(file); return false; }}>
+        <a><UploadOutlined /> الصورة</a>
+      </Upload>
+      {item.kind === "ride" && item.video_url && <a onClick={() => setFrameFrom(item.video_url)} style={{ marginInlineStart: 8 }}><PictureOutlined /> من الفيديو</a>}
+      <ImageEdgeEditor file={pending} onCancel={() => setPending(null)} onDone={(f) => { setPending(null); save(f); }} />
+      <FrameToArt source={frameFrom} title="صورة الدخولية: مربعة بأطراف ناعمة" onCancel={() => setFrameFrom(null)}
+        onDone={(f) => { setFrameFrom(null); save(f); }} />
+    </>
   );
 }
 
@@ -97,16 +131,17 @@ function VideoActions({ item, onDone }: { item: StoreItem; onDone: () => void })
   const progress = useProgress();
   const { modal } = App.useApp();
   const [linkOpen, setLinkOpen] = useState(false);
+  const [pending, setPending] = useState<File | null>(null);
   const upload = (file: File) => {
     act(async () => { try { await changeStoreVideo(item.id, file, progress.onProgress); } finally { progress.done(); } },
       item.video_url ? "تغيّر الفيديو" : "أُضيف الفيديو", onDone);
-    return false;
   };
   return (
     <Space size={4}>
-      <Upload accept={VIDEO_ACCEPT} showUploadList={false} customRequest={() => {}} beforeUpload={upload}>
+      <Upload accept={VIDEO_ACCEPT} showUploadList={false} customRequest={() => {}} beforeUpload={(f) => { setPending(f); return false; }}>
         <a><VideoCameraOutlined /> {item.video_url ? "تغيير الفيديو" : "فيديو"}</a>
       </Upload>
+      <VideoEdgeEditor file={pending} onCancel={() => setPending(null)} onDone={(f) => { setPending(null); upload(f); }} />
       <Dropdown trigger={["click"]} menu={{ items: [
         { key: "link", icon: <LinkOutlined />, label: "ربط فيديو موجود برابط", onClick: () => setLinkOpen(true) },
         ...(item.video_url ? [{

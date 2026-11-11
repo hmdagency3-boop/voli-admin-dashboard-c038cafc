@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { EditableProTable, ModalForm, PageContainer, ProForm, ProFormDigit, ProFormText } from "@ant-design/pro-components";
-import { DeleteOutlined, LinkOutlined, PlayCircleOutlined, PlusOutlined, UploadOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import { DeleteOutlined, LinkOutlined, PictureOutlined, PlayCircleOutlined, PlusOutlined, UploadOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { Alert, App, Button, Card, Dropdown, Image, Modal, Segmented, Space, Tabs, Tag, Tooltip, Upload, type UploadFile } from "antd";
 import { useMemo, useState } from "react";
 import { pageHead } from "@/components/meta";
 import { useAction, useLoad } from "@/components/hooks";
+import { ArtField } from "@/components/ArtField";
+import { FrameToArt } from "@/components/VideoFramePicker";
 import {
   changeGiftArt, changeGiftVideo, createGift, fmt, getGifts, getVipPrices, giftArtProblem, giftVideoProblem, giftVideoUrlOk,
   GIFT_ART_TYPES, GIFT_VIDEO_TYPES, normalizeGiftVideoUrl, removeGiftVideo, setGiftVideoUrl, updateGift, updateVipPrice,
@@ -74,12 +76,10 @@ function AddGift({ onDone }: { onDone: () => void }) {
       <ProFormText name="name" label="اسم الهدية" rules={[{ required: true, message: "اكتب اسم الهدية" }, { max: 40 }]} />
       <ProFormDigit name="price" label="السعر (كوينز)" min={1} fieldProps={{ precision: 0 }} rules={[{ required: true, message: "اكتب السعر" }]} />
       <ProFormDigit name="sort" label="الترتيب (فارغ = في الآخر)" min={0} fieldProps={{ precision: 0 }} />
-      <ProForm.Item name="art" label="صورة الهدية" valuePropName="fileList" getValueFromEvent={lastFile}
-        extra="PNG أو WebP أو GIF متحرك، حتى 5 ميجا. يفضّل خلفية شفافة ومقاس مربع."
+      <ProForm.Item name="art" label="صورة الهدية"
+        extra="PNG أو WebP أو GIF متحرك، حتى 5 ميجا. يفضّل خلفية شفافة ومقاس مربع. لهدايا الفيديو تقدر تختار الصورة من الفيديو نفسه."
         rules={[{ required: true, message: "اختر صورة للهدية" }, fileRule(giftArtProblem)]}>
-        <Upload accept={ACCEPT} listType="picture-card" maxCount={1} beforeUpload={() => false}>
-          <div><PlusOutlined /><div style={{ marginTop: 6 }}>اختر صورة</div></div>
-        </Upload>
+        <ArtField editorTitle="صورة الهدية من الفيديو: ظبطها" />
       </ProForm.Item>
       <ProForm.Item name="video" label="فيديو الهدية (اختياري — يجعلها هدية فيديو)" valuePropName="fileList" getValueFromEvent={lastFile}
         extra={VIDEO_HELP} rules={[fileRule(giftVideoProblem)]}>
@@ -93,11 +93,18 @@ function AddGift({ onDone }: { onDone: () => void }) {
 
 function ChangeArt({ gift, onDone }: { gift: AdminGift; onDone: () => void }) {
   const act = useAction();
+  const [frameFrom, setFrameFrom] = useState<string | null>(null);
+  const save = (file: File) => act(() => changeGiftArt(gift.key, file), "تغيّرت صورة الهدية", onDone);
   return (
-    <Upload accept={ACCEPT} showUploadList={false} customRequest={() => {}}
-      beforeUpload={(file) => { act(() => changeGiftArt(gift.key, file), "تغيّرت صورة الهدية", onDone); return false; }}>
-      <a><UploadOutlined /> {gift.art_url ? "تغيير الصورة" : "رفع صورة"}</a>
-    </Upload>
+    <>
+      <Upload accept={ACCEPT} showUploadList={false} customRequest={() => {}}
+        beforeUpload={(file) => { save(file); return false; }}>
+        <a><UploadOutlined /> {gift.art_url ? "تغيير الصورة" : "رفع صورة"}</a>
+      </Upload>
+      {gift.video_url && <a onClick={() => setFrameFrom(gift.video_url)} style={{ marginInlineStart: 8 }}><PictureOutlined /> من الفيديو</a>}
+      <FrameToArt source={frameFrom} title="صورة الهدية من الفيديو: ظبطها" onCancel={() => setFrameFrom(null)}
+        onDone={(f) => { setFrameFrom(null); save(f); }} />
+    </>
   );
 }
 

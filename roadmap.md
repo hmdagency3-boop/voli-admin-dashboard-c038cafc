@@ -20,3 +20,8 @@
 - [x] Panel: Store page (add, edit, hide, picture, video, sales) and member backpack with grant/remove; 6 rule tests; page checked with sample data.
 - [ ] Activate on Voli database: requires owner to run sql/023_store.sql.
 - [ ] Store and Backpack screens in the Voli app: separate project; request ready in sql/023_README.md.
+# Soft video edges (store)
+- [x] Editor before uploading store videos: live preview, softness slider, four-edges/oval shape, keeps sound; 5 rule tests; real browser run verified transparent edges.
+- [x] Entrance pictures: always square (crop middle / whole picture) with soft edges, PNG; 4 rule tests; browser run verified.
+- [ ] Transparent edges on iPhone: the Voli app plays WebM transparency only where the device supports it (separate app).
+- [x] Picture from a video frame (gifts and entrances, new and existing), then adjust square/soft edges; browser run verified with a chosen file and an uploaded Cloudinary link.
